@@ -1,0 +1,141 @@
+$activeBtnBgColor: #fff68e;
+
+.container {
+    font-family: sans-serif;
+    width: 100%;
+    height: 500px;
+    background: url(http://www.pictures-croatia.com/primosten/primosten-2m6e.jpg);
+    padding: 40px 0;
+    background-size: cover;
+
+    .building {
+        width: 20%;
+        background: #594d47;
+        height: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow: 0 -20px 0 #574b45;
+
+        .elevatorShaft {
+            background: #362e2b;
+            width: 33.33%;
+            height: 500px;
+            margin: 0 auto;
+            position: relative;
+
+            .elevatorContainer {
+                position: absolute;
+                height: 500px;
+                width: 100%;
+                bottom: 0;
+                animation: bottom 3s linear;
+
+                .elevatorAnimate {
+                    animation: bottom 3s linear;
+                    bottom: 50%;
+                }
+
+                .elevator {
+                    height: 20%;
+                    overflow: hidden;
+                    width: 100%;
+                    position: relative;
+                    box-shadow: 0 -10px 0 #333;
+                    background: url(http://www.riversideelevators.com/img/elevator_inside.jpg);
+                    background-size: 100% 100%;
+                    .door {
+                        background: #aaa;
+                        width: 49%;
+                        height: 100%;
+                        top: 0;
+                        position: absolute;
+                        transition: all 300ms ease-in;
+                        &#leftDoor {
+                            left: 0;
+                        }
+                        &#rightDoor {
+                            right: 0;
+                            background: #999;
+                        }
+                    }
+                    .open-right {
+                        right: -50% !important;
+                    }
+                    .open-left {
+                        left: -50% !important;
+                    }
+                }
+
+                .elevatorStrings {
+                    height: 80%;
+                    background: -moz-linear-gradient(
+                        left,
+                        transparent,
+                        transparent 10%,
+                        #aaa 10%,
+                        #aaa 30%,
+                        transparent 30%,
+                        transparent 40%,
+                        #ccc 40%,
+                        #ccc 60%,
+                        transparent 60%,
+                        transparent 70%,
+                        #999 70%,
+                        #999 90%,
+                        transparent 90%,
+                        transparent
+                    );
+                    width: 75%;
+                    margin: 0 auto;
+                }
+            }
+        }
+    }
+    .floorSelect {
+        text-align: center;
+        position: absolute;
+        background: #fff;
+        width: 20%;
+        left: 10%;
+        box-shadow: 0 0 5px #362e2b;
+
+        .btnActive {
+            background: $activeBtnBgColor;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+
+            li {
+                width: 50px;
+                text-align: center;
+                height: 50px;
+                line-height: 50px;
+                border: 1px solid #aaa;
+                margin: 13px;
+                transition: all 300ms;
+                border-radius: 50%;
+                border: 2px solid #000;
+                list-style-type: none;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+
+        h4 {
+            margin: 20px 0 10px;
+        }
+    }
+    p {
+        display: block;
+        width: 20%;
+        padding: 10px;
+        margin: 0 10%;
+        color: #fff;
+    }
+}
