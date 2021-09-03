@@ -1,4 +1,4 @@
-import { Elevador } from './Components/Elevador';
+import { Elevador } from './Components/ElevadorComponent/Elevador';
 
 function App() {
   return (

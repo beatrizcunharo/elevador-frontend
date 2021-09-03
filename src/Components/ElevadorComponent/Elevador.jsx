@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './Elevador.scss';
-import ApiService from '../Service/ApiService';
+import Service from '../../Service';
+import Button from '@material-ui/core/Button';
+import Modal from '@material-ui/core/Modal';
+import ModalComponent from '../ModalComponent';
 
 const containerHeight = 750;
 const countAndares = 4;
@@ -27,6 +30,7 @@ export function Elevador() {
     const elevatorContainerRef = useRef();
     const andarRef = useRef(1);
     const [andaresApertados, setAndaresApertados] = useState([]);
+    const [open, setOpen] = useState(false);
     const [{ mensagem, portaAberta }, setState] = useState({
         mensagem: 'Você está no andar 1',
         portaAberta: true
@@ -63,7 +67,7 @@ export function Elevador() {
         // Chegou no andar
 
         // Salvando no histórico
-        ApiService.save(andarApertado);
+        Service.save(andarApertado);
 
         andarRef.current = andarApertado;
         setState((p) => ({
@@ -74,8 +78,6 @@ export function Elevador() {
 
         // Limpa o andar apertado do array
         setAndaresApertados((pAndaresApertados) => pAndaresApertados.filter((andar) => andar !== andarApertado));
-
-        console.log('Aguardando pessoas saírem do Elevador...');
         await sleep(tempoAndar);
     }, []);
 
@@ -95,6 +97,11 @@ export function Elevador() {
         verificarAndarApertado();
     }, [verificarAndarApertado]);
 
+    // Abrir e fechar o modal do histórico
+    const handleOpen = () => setOpen(true);
+
+    const handleClose = () => setOpen(false);
+
     return (
         <div className='container'>
             <div className='floorSelect'>
@@ -113,6 +120,9 @@ export function Elevador() {
                             {andarValue}
                         </li>
                     ))}
+                    <Button className='button' variant='contained' color='default' onClick={handleOpen}>
+                        Histórico
+                    </Button>
                 </ul>
             </div>
 
@@ -131,6 +141,14 @@ export function Elevador() {
                     </div>
                 </div>
             </div>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby='simple-modal-title'
+                aria-describedby='simple-modal-description'
+            >
+                <ModalComponent />
+            </Modal>
         </div>
     );
 }

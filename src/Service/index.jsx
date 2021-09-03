@@ -6,4 +6,9 @@ export default class Elevador {
     static save(andarApertado) {
         axios.post(BASE_URL, { andar: andarApertado });
     }
+
+    // Carrega o histórico
+    static buscarTodos() {
+        axios.get(BASE_URL);
+    }
 }
