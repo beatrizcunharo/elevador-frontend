@@ -1,124 +1,126 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
 import clsx from 'clsx';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './Elevador.scss';
 
-const tempoAndar = 1000;
+const containerHeight = 750;
+const countAndares = 4;
+const opcoesAndares = Array.from(Array(countAndares).keys())
+    .map((x) => ++x)
+    .reverse();
+const heightPercAndar = 75 / (countAndares - 1);
+const tempoAndar = 2000;
 
-function obterDistanciaBottom(andar) {
-    return (andar - 1) * 20 + '%';
-}
-
-function acoesContainsAndar(acoes, andar) {
-    return acoes.find((acao) => acao.andar === andar);
-}
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function obterTempoAnimacao(prevAndar, currAndar) {
     return Math.abs(currAndar - prevAndar) * tempoAndar;
 }
 
-function animarElevador(elevatorElement, tempoAnimacao, bottom) {
-    elevatorElement.style.transition = `bottom ${tempoAnimacao}ms linear`;
-    elevatorElement.style.bottom = bottom;
+function animarElevador(elevatorElement, tempoAnimacao, andar) {
+    elevatorElement.style.transition = `bottom ${tempoAnimacao - 500}ms linear`;
+    elevatorElement.style.bottom = (andar - 1) * heightPercAndar + '%';
 }
 
+const acoes = [];
 export function Elevador() {
     const elevatorContainerRef = useRef();
-    const [andar, setAndar] = useState(1);
-    const [acoes, setAcoes] = useState([{ andar }]);
-    const [state, setState] = useState({
+    const andarRef = useRef(1);
+    const [andaresApertados, setAndaresApertados] = useState([]);
+    const [{ mensagem, portaAberta }, setState] = useState({
         mensagem: 'Você está no andar 1',
         portaAberta: true
     });
 
-    function incluirAcao(_andar) {
-        if (andar === _andar && state.portaAberta) alert('Você já se encontra no andar ' + _andar);
-        else if (acoesContainsAndar(acoes, _andar)) return;
-        else setAcoes([...acoes, { andar: _andar }]);
+    function tratarApertoBotao(btnAndar) {
+        if (andarRef.current === btnAndar && portaAberta) alert('Você já se encontra no andar ' + btnAndar);
+        else if (andaresApertados.includes(btnAndar)) return;
+        else {
+            acoes.unshift(btnAndar);
+            setAndaresApertados([btnAndar, ...andaresApertados]);
+        }
     }
 
-    function tratarCliqueAndar(ev) {
-        incluirAcao(ev.target.value);
-    }
+    const moverElevador = useCallback(async (andarApertado) => {
+        const tempoAnimacao = obterTempoAnimacao(andarRef.current, andarApertado);
 
-    function obterCssAndarAtivo(_andar) {
-        return clsx(acoesContainsAndar(acoes, _andar) && _andar !== andar && 'btnActive');
-    }
+        console.log('Fechando as portas do Elevador...');
+        setState((p) => ({ ...p, portaAberta: false }));
+        await sleep(300);
 
-    const executarAcao = useCallback(
-        async (_acoes) => {
-            const acao = _acoes.pop();
-            if (!acao || andar === acao?.andar) {
-                setAcoes(_acoes);
-                return;
-            }
-            const tempoAnimacao = obterTempoAnimacao(andar, acao.andar);
-            console.log('Fechando as portas do Elevador...');
+        // Anima o Elevador
+        animarElevador(elevatorContainerRef.current, tempoAnimacao, andarApertado);
+        // Altera a Mensagem
+        setState((p) => ({
+            ...p,
+            mensagem: andarRef.current < andarApertado ? 'Subindo /\\' : 'Descendo \\/'
+        }));
+        // Aguarda o tempo da animação
+        await sleep(tempoAnimacao);
 
-            // Anima o Elevador
-            animarElevador(elevatorContainerRef.current, tempoAnimacao, obterDistanciaBottom(acao.andar));
+        // Chegou no andar
+        // Logar no Histórico Aqui
 
-            // Altera a Mensagem e fecha a porta
-            setState((p) => ({
-                ...p,
-                mensagem: andar < acao.andar ? 'Subindo...' : 'Descendo...',
-                portaAberta: false
-            }));
+        andarRef.current = andarApertado;
+        setState((p) => ({
+            ...p,
+            mensagem: 'Você está no andar ' + andarApertado,
+            portaAberta: true
+        }));
+        // Limpa o andar apertado do array
+        setAndaresApertados((pAndaresApertados) => pAndaresApertados.filter((andar) => andar !== andarApertado));
 
-            await setTimeout(() => {
-                // Fazer: disparar no histórico
-                // Elevador chegou no andar
-                setState((p) => ({
-                    ...p,
-                    mensagem: 'Você está no andar ' + acao.andar,
-                    portaAberta: true
-                }));
-                setAndar(acao.andar);
-            }, tempoAnimacao);
+        console.log('Aguardando pessoas saírem do Elevador...');
+        await sleep(tempoAndar);
+    }, []);
 
-            await setTimeout(() => {
-                console.log('Aguardando pessoas saírem...');
-                setAcoes(_acoes);
-            }, 2000);
-        },
-        [andar]
-    );
+    const verificarAndarApertado = useCallback(async () => {
+        while (acoes.length) {
+            const andarApertado = acoes.pop();
+            if (andarApertado) await moverElevador(andarApertado);
+        }
+        await sleep(1000);
+        await verificarAndarApertado();
+    }, [moverElevador]);
 
-    const executorDeAcoes = useCallback(
-        async (_acoes) => {
-            await executarAcao(_acoes);
-        },
-        [executarAcao]
-    );
-
-    // Processa Ação
+    /**
+     * Fica verificando se tem andares apertados e executa a ação de mover o elevador
+     */
     useEffect(() => {
-        if (acoes.length > 0) executorDeAcoes([...acoes]);
-    }, [executorDeAcoes, acoes]);
+        verificarAndarApertado();
+    }, [verificarAndarApertado]);
 
     return (
         <div className='container'>
             <div className='floorSelect'>
-                <h4>{state.mensagem}</h4>
+                <h4>{mensagem}</h4>
                 <ul>
-                    <li value='1' onClick={tratarCliqueAndar} className={obterCssAndarAtivo(1)}>
-                        1
-                    </li>
-                    <li value='2' onClick={tratarCliqueAndar} className={obterCssAndarAtivo(2)}>
-                        2
-                    </li>
-                    <li value='3' onClick={tratarCliqueAndar} className={obterCssAndarAtivo(3)}>
-                        3
-                    </li>
+                    {opcoesAndares.map((andarValue) => (
+                        <li
+                            key={andarValue}
+                            value={andarValue}
+                            onClick={(ev) => tratarApertoBotao(ev.target.value)}
+                            className={clsx({
+                                btnInFloor: andarValue === andarRef.current,
+                                btnActive: andaresApertados.includes(andarValue)
+                            })}
+                        >
+                            {andarValue}
+                        </li>
+                    ))}
                 </ul>
             </div>
 
             <div className='building'>
                 <div className='elevatorShaft'>
-                    <div className='elevatorContainer' ref={elevatorContainerRef}>
-                        <div className='elevatorStrings'></div>
-                        <div className='elevator'>
-                            <div className={clsx('door', state.portaAberta && 'open-left')} id='leftDoor'></div>
-                            <div className={clsx('door', state.portaAberta && 'open-right')} id='rightDoor'></div>
+                    <div className='elevatorContainer'>
+                        <div className='elevatorStrings' />
+                        <div
+                            className='elevator'
+                            ref={elevatorContainerRef}
+                            style={{ height: containerHeight / countAndares }}
+                        >
+                            <div className={clsx('door', portaAberta && 'open-left')} id='leftDoor'></div>
+                            <div className={clsx('door', portaAberta && 'open-right')} id='rightDoor'></div>
                         </div>
                     </div>
                 </div>

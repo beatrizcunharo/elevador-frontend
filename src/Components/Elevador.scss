@@ -1,51 +1,49 @@
 $activeBtnBgColor: #fff68e;
+$inFloorBtnBgColor: #d8dbdd;
+$doorBgColor: #797979;
+$elevatorContainer: 750px;
 
 .container {
-    font-family: sans-serif;
+    display: flex;
+    align-items: center;
     width: 100%;
-    height: 500px;
+    height: $elevatorContainer;
     background: url(http://www.pictures-croatia.com/primosten/primosten-2m6e.jpg);
     padding: 40px 0;
     background-size: cover;
 
     .building {
-        width: 20%;
+        width: 30%;
         background: #594d47;
-        height: 500px;
+        height: $elevatorContainer;
         margin: 0 auto;
         overflow: hidden;
         box-shadow: 0 -20px 0 #574b45;
 
         .elevatorShaft {
             background: #362e2b;
-            width: 33.33%;
-            height: 500px;
+            width: 45%;
+            height: $elevatorContainer;
             margin: 0 auto;
             position: relative;
 
             .elevatorContainer {
-                position: absolute;
-                height: 500px;
+                height: $elevatorContainer;
                 width: 100%;
-                bottom: 0;
-                animation: bottom 3s linear;
-
-                .elevatorAnimate {
-                    animation: bottom 3s linear;
-                    bottom: 50%;
-                }
 
                 .elevator {
-                    height: 20%;
+                    bottom: 0;
                     overflow: hidden;
                     width: 100%;
-                    position: relative;
+                    position: absolute;
                     box-shadow: 0 -10px 0 #333;
                     background: url(http://www.riversideelevators.com/img/elevator_inside.jpg);
                     background-size: 100% 100%;
+                    border-top: 2px solid $doorBgColor;
+                    border-bottom: 2px solid $doorBgColor;
                     .door {
-                        background: #aaa;
-                        width: 49%;
+                        background: $doorBgColor;
+                        width: 49.5%;
                         height: 100%;
                         top: 0;
                         position: absolute;
@@ -55,7 +53,6 @@ $activeBtnBgColor: #fff68e;
                         }
                         &#rightDoor {
                             right: 0;
-                            background: #999;
                         }
                     }
                     .open-right {
@@ -101,6 +98,10 @@ $activeBtnBgColor: #fff68e;
 
         .btnActive {
             background: $activeBtnBgColor;
+        }
+
+        .btnInFloor {
+            background: $inFloorBtnBgColor !important;
         }
 
         ul {
