@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './Elevador.scss';
-import Service from '../../Service';
+import HistoricoService from '../../Service';
 import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
-import ModalComponent from '../ModalComponent';
+import { ModalComponent } from '../ModalComponent';
 
 const containerHeight = 750;
 const countAndares = 4;
@@ -67,7 +67,7 @@ export function Elevador() {
         // Chegou no andar
 
         // Salvando no histórico
-        Service.save(andarApertado);
+        HistoricoService.save(andarApertado);
 
         andarRef.current = andarApertado;
         setState((p) => ({
