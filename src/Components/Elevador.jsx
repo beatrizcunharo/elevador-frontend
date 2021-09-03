@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './Elevador.scss';
+import ApiService from '../Service/ApiService';
 
 const containerHeight = 750;
 const countAndares = 4;
@@ -43,22 +44,26 @@ export function Elevador() {
     const moverElevador = useCallback(async (andarApertado) => {
         const tempoAnimacao = obterTempoAnimacao(andarRef.current, andarApertado);
 
-        console.log('Fechando as portas do Elevador...');
+        // Fechando as portas do elevador
         setState((p) => ({ ...p, portaAberta: false }));
         await sleep(300);
 
         // Anima o Elevador
         animarElevador(elevatorContainerRef.current, tempoAnimacao, andarApertado);
+
         // Altera a Mensagem
         setState((p) => ({
             ...p,
             mensagem: andarRef.current < andarApertado ? 'Subindo /\\' : 'Descendo \\/'
         }));
+
         // Aguarda o tempo da animação
         await sleep(tempoAnimacao);
 
         // Chegou no andar
-        // Logar no Histórico Aqui
+
+        // Salvando no histórico
+        ApiService.save(andarApertado);
 
         andarRef.current = andarApertado;
         setState((p) => ({
@@ -66,6 +71,7 @@ export function Elevador() {
             mensagem: 'Você está no andar ' + andarApertado,
             portaAberta: true
         }));
+
         // Limpa o andar apertado do array
         setAndaresApertados((pAndaresApertados) => pAndaresApertados.filter((andar) => andar !== andarApertado));
 
